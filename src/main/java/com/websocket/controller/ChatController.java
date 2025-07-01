@@ -1,27 +1,25 @@
 package com.websocket.controller;
 
+import com.websocket.dto.ChatMessageDTO;
+import com.websocket.service.ChatMessageService;
 import org.springframework.messaging.handler.annotation.*;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 @Controller
 public class ChatController {
 
-    private final SimpMessagingTemplate messagingTemplate;
+    private final ChatMessageService chatMessageService;
 
-    public ChatController(SimpMessagingTemplate messagingTemplate) {
-        this.messagingTemplate = messagingTemplate;
+    public ChatController(ChatMessageService chatMessageService) {
+        this.chatMessageService = chatMessageService;
     }
 
-    // Client sends to: /app/chat.send/{siteId}
     @MessageMapping("/chat.send/{siteId}")
-    public void sendMessage(@DestinationVariable String siteId, @Payload String message) {
-        messagingTemplate.convertAndSend("/topic/site/" + siteId, message);
-    }
+    public void sendMessage(@DestinationVariable String siteId, @Payload ChatMessageDTO messageDTO) {
+        // Add siteId to DTO in case it’s not passed
+        messageDTO.setSiteId(siteId);
 
-    // Client sends to: /app/notify.user/{userId}
-    @MessageMapping("/notify.user/{userId}")
-    public void sendNotification(@DestinationVariable String userId, @Payload String notification) {
-        messagingTemplate.convertAndSend("/topic/notification/user/" + userId, notification);
+        // Handle save + broadcast
+        chatMessageService.handleIncomingMessage(messageDTO);
     }
 }
