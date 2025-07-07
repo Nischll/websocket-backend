@@ -11,4 +11,6 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
 
     // Optional: Custom query to fetch messages between two users for a site
     List<ChatMessage> findBySiteIdAndReceiverIdOrderByTimestampDesc(String siteId, String receiverId);
+    List<ChatMessage> findBySiteIdAndReceiverIdOrderByTimestampAsc(String siteId, String receiverId);
+
 }
